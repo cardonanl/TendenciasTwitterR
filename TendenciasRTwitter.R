@@ -9,39 +9,25 @@ library(rtweet)
 library(wordcloud2)
 library(qdapRegex)
 
-?twitterR
+
+
+################
+##Con Rtwitter##
+################
 
 appname <- "RTWEET"
 
-api_key <- "SQDmQxSPrrFPGO0j7kI6k4Gk4"
+api_key <- "XXXXX"
 
-api_secret <- "VxJklYjbysD1DrLsqBezhwTaYfWLSNdldcG3PDYbrsq1cH7Ps0"
+api_secret <- "XXXXXX"
 
-access_token <- "205500871-oRfaN2NkuixQzIKwv1LzlvSbeyzTIKhNCmeI4oLD"
+access_token <- "XXXXXX"
 
-access_token_secret <- "OdRmRYGSmPwjtH2g5xtnTavQDjcGg4bhvAFi5zBmiTCq4"
-
-setup_twitter_oauth(api_key,api_secret,access_token,access_token_secret)
+access_token_secret <- "XXXXX"
 
 
-twitter_token <- create_token(
-  app = appname,
-  consumer_key = api_key,
-  consumer_secret = api_secret,
-  access_token = access_token, 
-  access_secret = access_token_secret)
+appname <- "XXXX"
 
-##
-
-appname <- "TRANS"
-
-api_key1 <- "ddwTfdozUilKDY8F8bAcD3XEp"
-
-api_secret1 <- "pFElcJ3d43lAxGJAdFcPg5C0bRRVXqhFkyaxSzcS2AXStWnSWz"
-
-access_token1 <- "205500871-Ne8E9Z7uzIz8QdLTDz1Let5TDTBcEmxRxUh7Y1e7"
-
-access_token_secret1 <- "LFiCaYWUvUr6EOIA2WjYqQ2UpytK8CJ9FJqrgom3XG1Tg"
 
 setup_twitter_oauth(api_key1,api_secret1,access_token1,access_token_secret1)
 
@@ -74,7 +60,7 @@ count(tweets3)
 
 ?search_tweets2
 
-ts_plot(tweets, "hours", lwd = 1, color = "gold3") + theme_bw() + labs(title = "Flujo de tweets con #GradoDeInversion", y = "Número de tweets y RTs (Aprox)", subtitle = "@Cardonanl")
+ts_plot(tweets, "hours", lwd = 1, color = "gold3") + theme_bw() + labs(title = "Flujo de tweets con #GradoDeInversion", y = "NÃºmero de tweets y RTs (Aprox)", subtitle = "@Cardonanl")
 
 granrt <- tweets %>% 
   arrange(-retweet_count) %>%
@@ -102,9 +88,9 @@ dias1 <- table(weekdays(tweets$created_at))
 xy <- as.data.frame(dias1)
 xy %>%
   arrange(Freq) %>%
-  mutate(Var1 = factor(Var1, levels=c("lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo"))) %>%
+  mutate(Var1 = factor(Var1, levels=c("lunes", "martes", "miÃ©rcoles", "jueves", "viernes", "sÃ¡bado", "domingo"))) %>%
   ggplot() + 
-  geom_col(aes(x = Freq, y = Var1), fill = "gold3") + theme_bw() + labs(title = "Flujo de tweets con mención #GradoDeInversion", x = "Día de la semana", y = "Número de tweets y RTs (Aprox)", subtitle = "@CardonaNl")
+  geom_col(aes(x = Freq, y = Var1), fill = "gold3") + theme_bw() + labs(title = "Flujo de tweets con menciÃ³n #GradoDeInversion", x = "DÃ­a de la semana", y = "NÃºmero de tweets y RTs (Aprox)", subtitle = "@CardonaNl")
 
 
 
@@ -151,7 +137,7 @@ str(subdata)
 ?top_n
 
 ggplot(subdatab, aes(word, freq)) + geom_bar(stat="identity", fill="gold3") + 
-  xlab("Palabras") + ylab("Frecuencia") + ggtitle("Palabras más usadas para @DRC_NGO", subtitle = "Kuja Kuja") + theme_bw()
+  xlab("Palabras") + ylab("Frecuencia") + ggtitle("Palabras mÃ¡s usadas para @DRC_NGO", subtitle = "Kuja Kuja") + theme_bw()
 
 
 
@@ -186,7 +172,7 @@ txtcleanbl <- gsub("[[:digit:]]", "", txtcleanbl)
 # remueve links
 txtcleanbl <- gsub("http\\w+", "", txtcleanbl)
 txtcleanbl <- gsub("...", "", txtcleanbl)
-txtcleanbl <- gsub("í", "", txtcleanbl)
+txtcleanbl <- gsub("Ã­", "", txtcleanbl)
 
 ?gsub
 
@@ -211,7 +197,7 @@ mbl <- as.matrix(tdmbl)
 
 blconteo <- sort(rowSums(mbl), decreasing = T)
 
-###########acotar la lista para la gráfica##########
+###########acotar la lista para la grÃ¡fica##########
 
 blconteo <- subset(blconteo, blconteo >= 1)
 blconteo <- subset(blconteo, blconteo <= 200)
@@ -237,5 +223,5 @@ library(wordcloud2)
 wordcloud2(data=subdata, size = 0.7, shape = 'pentagon')
 
 ggplot(blfrecuencia, aes(word, freq, fill=freq)) + geom_bar(stat="identity") + 
-  xlab("Palabras") + ylab("Frecuencia") + ggtitle("Palabras más usadas en coyuntura Edificio Luz Marina") + theme_bw()
+  xlab("Palabras") + ylab("Frecuencia") + ggtitle("Palabras mÃ¡s usadas en coyuntura Edificio Luz Marina") + theme_bw()
 
