@@ -10,12 +10,11 @@ library(wordcloud2)
 library(qdapRegex)
 
 
-
 ################
 ##Con Rtwitter##
 ################
 
-appname <- "RTWEET"
+appname <- "XXXX"
 
 api_key <- "XXXXX"
 
@@ -25,14 +24,10 @@ access_token <- "XXXXXX"
 
 access_token_secret <- "XXXXX"
 
-
-appname <- "XXXX"
-
-
 setup_twitter_oauth(api_key1,api_secret1,access_token1,access_token_secret1)
 
 
-twitter_token1 <- create_token(
+twitter_token <- create_token(
   app = appname,
   consumer_key = api_key1,
   consumer_secret = api_secret1,
@@ -40,28 +35,22 @@ twitter_token1 <- create_token(
   access_secret = access_token_secret1)
 
 
-##################### Busqueda y visualizacion con Rtwitter
-
-since <- '2021-06-01'
+############ Busqueda y visualizacion
 
 tweets <- search_tweets(q = "#GradoDeInversion", n = 10000, include_rts = T, token = twitter_token)
 
-tweets2 <- search_tweets(q = "@ACHColombia", n = 10000, include_rts = T, token = twitter_token)
+#Para establecer una fecha de inicio añadir el siguiente argumento
+since <- '2021-06-01'
 
-tweets3 <- search_tweets(q = "@DRC_ngo", n = 10000, include_rts = T, token = twitter_token)
 
-tweets4 <- search_tweets(q = "@NRC_LAC", n = 10000, include_rts = T, token = twitter_token1)
-
-tweets5 <- search_tweets(q = "#PicoYGenero", n = 10000, include_rts = T, token = twitter_token1, retryonratelimit = T)
-
-str(tweets)
-
-count(tweets3)
-
-?search_tweets2
+#### Serie de tiempo con el número de interacciones
+#Interacciones = Tweets + RTs + Respuestas + etc (para limitar lo incluído en interacciones ver argumentos como include_rts)
+#Notese que para usar ts_plot el dataframe es considerado una serie de tiempo. Este puede ser modelado.
 
 ts_plot(tweets, "hours", lwd = 1, color = "gold3") + theme_bw() + labs(title = "Flujo de tweets con #GradoDeInversion", y = "Número de tweets y RTs (Aprox)", subtitle = "@Cardonanl")
 
+
+#Tweet con más RTs
 granrt <- tweets %>% 
   arrange(-retweet_count) %>%
   slice(1) %>% 
@@ -69,9 +58,7 @@ granrt <- tweets %>%
 
 View(granrt)
 
-
-?ts_plot
-
+#Top N de las cuentas con mayor cantidad de tweets escritos
 procedencia1 <- tweets %>%
   filter(screen_name != "", !is.na(screen_name)) %>% 
   count(screen_name) %>% 
@@ -83,7 +70,7 @@ procedencia1 <- tweets %>%
        x = "Usuario",
        y = "Cantidad", subtitle = "@CardonaNL") + theme_bw()
 
-
+#Cantidad de tweets por días de la semana
 dias1 <- table(weekdays(tweets$created_at))
 xy <- as.data.frame(dias1)
 xy %>%
@@ -93,18 +80,13 @@ xy %>%
   geom_col(aes(x = Freq, y = Var1), fill = "gold3") + theme_bw() + labs(title = "Flujo de tweets con mención #GradoDeInversion", x = "Día de la semana", y = "Número de tweets y RTs (Aprox)", subtitle = "@CardonaNl")
 
 
-
+#Crear un CVS para descargar (acá se puede ver fácil cuál fue la primera cuenta, etc)
 write_as_csv(tweets, "gradodeinversion.csv", prepend_ids = TRUE, na = "", fileEncoding = "UTF-8")
-
 save_as_csv(tweets, "gradodeinversion.csv", prepend_ids = TRUE, na = "", fileEncoding = "UTF-8")
 
-str(tweets)
 
-
-###WordCloud y palabras mas usadas
-
+#WordCloud y palabras mas usadas
 text <- str_c(tweets3$text, collapse = "")
-
 text <- 
   text %>%
   str_remove("\\n") %>%
@@ -121,75 +103,45 @@ textCorpus <-
   Corpus(VectorSource(text)) %>%
   TermDocumentMatrix() %>%
   as.matrix()
-
 textCorpus <- sort(rowSums(textCorpus), decreasing=TRUE)
+
 textCorpus <- data.frame(word = names(textCorpus), freq=textCorpus, row.names = NULL)
-
-
-
 wordcloud <- wordcloud2(data = textCorpus, minRotation = 0, maxRotation = 0, ellipticity = 0.6)
 wordcloud
 
-
+#La siguiente linea es por si la tendencia es demasiado grande. Hace un subdf con las palabras más repetidas
 subdatab <- subset(textCorpus, freq >= 10) %>% slice_max(subdatab, n = 10)
-str(subdata)
-
-?top_n
 
 ggplot(subdatab, aes(word, freq)) + geom_bar(stat="identity", fill="gold3") + 
   xlab("Palabras") + ylab("Frecuencia") + ggtitle("Palabras más usadas para @DRC_NGO", subtitle = "Kuja Kuja") + theme_bw()
 
 
 
+################
+##Con TwitterR##
+################
+#Este paquete dejaron de actualizarlo hace un tiempo pero es más amigable con algunas cosas
 
-#########################################
-#########Conversiones con TwitterR
-######
+#Busqueda con twitterR
 
-#####################Busqueda con twitterR
+xxx <- searchTwitter("@xxx", n = 150000)
 
-roy <- searchTwitter("@NRC_LAC", n = 150000)
+xxxx <- searchTwitter("#xxx", n = 15000)
 
-ospina <- searchTwitter("@NRC_LAC", n = 15000)
-
-
-
-##data frame
-
-
+#data frame
 txtbl <- str_replace_all(roy$text,"[^[:graph:]]", "")
 txtbl <- str_replace_all(roy$text,"[^[:graph:]]", " ") 
 
-##### inicio limpieza de datos #####
-# remueve retweets
-txtcleanbl <- gsub("(RT|via)((?:\\b\\W*@\\w+)+)", "", txtbl)
-# remove @otragente
-txtcleanbl <- gsub("@\\w+", "", txtcleanbl)
-# remueve simbolos de puntuaci?n
-txtcleanbl <- gsub("[[:punct:]]", "", txtcleanbl)
-# remove n?meros
-txtcleanbl <- gsub("[[:digit:]]", "", txtcleanbl)
-# remueve links
-txtcleanbl <- gsub("http\\w+", "", txtcleanbl)
-txtcleanbl <- gsub("...", "", txtcleanbl)
-txtcleanbl <- gsub("í", "", txtcleanbl)
-
-?gsub
-
-##### fin limpieza de datos #####
-
-
+#Para Worlcloud y otras gráficas
+#limpieza de texto
+txtcleanbl <- gsub("(RT|via)((?:\\b\\W*@\\w+)+)", "", txtbl) %>% gsub("@\\w+", "", txtcleanbl) %>% gsub("[[:punct:]]", "", txtcleanbl) %>% gsub("[[:digit:]]", "", txtcleanbl)
+%>% gsub("http\\w+", "", txtcleanbl) %>% gsub("...", "", txtcleanbl) %>% gsub("í", "", txtcleanbl)
 
 corpusbl <- Corpus(VectorSource(txtcleanbl))
 
+corpusbl <- tm_map(corpusbl, tolower) %>% tm_map(corpusbl, removeWords, c(stopwords("es"))) %>% tm_map(corpusbl, stripWhitespace)
 
-# convierte a min?sculas
-corpusbl <- tm_map(corpusbl, tolower)
-corpusbl <- tm_map(corpusbl, removeWords, c(stopwords("es")))
-corpusbl <- tm_map(corpusbl, stripWhitespace)
-
-
-########matriz
+#matriz
 
 tdmbl <- TermDocumentMatrix(corpusbl)
 
@@ -197,7 +149,7 @@ mbl <- as.matrix(tdmbl)
 
 blconteo <- sort(rowSums(mbl), decreasing = T)
 
-###########acotar la lista para la gráfica##########
+#Solo contar algunas palabras/términos
 
 blconteo <- subset(blconteo, blconteo >= 1)
 blconteo <- subset(blconteo, blconteo <= 200)
@@ -211,17 +163,14 @@ subdatab <- subset(blfrecuencia, freq > 20)
 subdatabb <- subset(subdatab)
 subdatabb <- subdatabb[-c(2),] 
 
-###############visualizacion
+#visualizaciones
 
 wordcloud(subdatabb$word, subdatabb$freq, random.order = F, colors = brewer.pal(5, "Dark2"), main = "Worlsaddsf")
-?wordcloud
-
-?brewer.pal
 
 library(wordcloud2)
 
 wordcloud2(data=subdata, size = 0.7, shape = 'pentagon')
 
 ggplot(blfrecuencia, aes(word, freq, fill=freq)) + geom_bar(stat="identity") + 
-  xlab("Palabras") + ylab("Frecuencia") + ggtitle("Palabras más usadas en coyuntura Edificio Luz Marina") + theme_bw()
+  xlab("Palabras") + ylab("Frecuencia") + ggtitle("Palabras más usadas en xxx") + theme_bw()
 
