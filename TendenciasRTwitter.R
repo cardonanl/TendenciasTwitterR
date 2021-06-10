@@ -113,7 +113,7 @@ wordcloud
 subdatab <- subset(textCorpus, freq >= 10) %>% slice_max(subdatab, n = 10)
 
 ggplot(subdatab, aes(word, freq)) + geom_bar(stat="identity", fill="gold3") + 
-  xlab("Palabras") + ylab("Frecuencia") + ggtitle("Palabras más usadas para @DRC_NGO", subtitle = "Kuja Kuja") + theme_bw()
+  xlab("Palabras") + ylab("Frecuencia") + ggtitle("Palabras más usadas para xxxO", subtitle = "xxx") + theme_bw()
 
 
 
